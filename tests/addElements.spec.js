@@ -6,7 +6,7 @@ test('add and remove elements', async ({ page }) => {
 
   // Add elements
   await page.click('button[onclick="addElement()"]');
-  await page.click('button[onclick="addElement()"]');
+  await page.click('button[onclicnpx playwright test addElements.spec.js --headedk="addElement()"]');
 
   // Verify that two elements were added
   const deleteButtons = page.locator('.added-manually');
