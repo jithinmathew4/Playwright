@@ -5,16 +5,16 @@ test('add and remove elements', async ({ page }) => {
   await page.goto('https://the-internet.herokuapp.com/add_remove_elements/');
 
   // Add elements
-  await page.click('button[onclick="addElement()"]');
-  await page.click('button[onclicnpx playwright test addElements.spec.js --headedk="addElement()"]');
+  await page.getByRole('button', { name: 'Add Element' }).click();
+  await page.getByRole('button', { name: 'Add Element' }).click();
 
   // Verify that two elements were added
   const deleteButtons = page.locator('.added-manually');
-  expect(await deleteButtons.count()).toBe(2);
+  await expect(deleteButtons).toHaveCount(2);
 
   // Remove one element
   await deleteButtons.first().click();
 
   // Verify that one element remains
-  expect(await deleteButtons.count()).toBe(1);
+  await expect(deleteButtons).toHaveCount(1);
 });
