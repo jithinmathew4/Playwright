@@ -42,3 +42,8 @@ bower_components/
 
 # MacOS
 .DS_Store
+
+# Playwright
+/test-results/
+/playwright-report/
+/playwright/.cache/
