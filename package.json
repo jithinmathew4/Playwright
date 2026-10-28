@@ -4,7 +4,12 @@
   "description": "End-to-end UI and API test automation with Playwright and TypeScript",
   "license": "MIT",
   "scripts": {
+    "app:start": "tsx app/server.ts",
     "test": "playwright test",
+    "test:external": "playwright test --project=external",
+    "test:app": "playwright test --project=app",
+    "test:db": "playwright test --project=app tests/TaskApp/db",
+    "test:perf": "playwright test --project=perf",
     "test:ui": "playwright test tests/UI",
     "test:api": "playwright test tests/API",
     "test:headed": "playwright test --headed",
@@ -12,6 +17,15 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.49.1",
-    "@types/node": "^22.10.5"
+    "@types/express": "^5.0.6",
+    "@types/node": "^22.10.5",
+    "@types/pg": "^8.23.1",
+    "tsx": "^4.23.15"
+  },
+  "dependencies": {
+    "better-sqlite3": "^13.0.3",
+    "express": "^5.3.0",
+    "knex": "^3.3.0",
+    "pg": "^8.23.1"
   }
 }

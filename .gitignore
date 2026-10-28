@@ -43,6 +43,10 @@ bower_components/
 # MacOS
 .DS_Store
 
+# Task app SQLite database and local environment
+/data/
+.env
+
 # Playwright
 /test-results/
 /playwright-report/

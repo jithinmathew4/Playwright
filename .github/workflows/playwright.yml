@@ -6,8 +6,27 @@ on:
     branches: [ main, master ]
 jobs:
   test:
+    name: test (${{ matrix.db }})
     timeout-minutes: 60
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        db: [ sqlite, postgres ]
+    services:
+      # Throwaway database that exists only for this job. The leg is chosen by matrix.db;
+      # on the sqlite leg the container still starts but is unused.
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
     steps:
     - uses: actions/checkout@v4
     - uses: actions/setup-node@v4
@@ -16,12 +35,19 @@ jobs:
     - name: Install dependencies
       run: npm ci
     - name: Install Playwright Browsers
-      run: npx playwright install --with-deps
-    - name: Run Playwright tests
+      run: npx playwright install --with-deps chromium
+    - name: Run Playwright tests (SQLite, full suite)
+      if: matrix.db == 'sqlite'
       run: npx playwright test
+    - name: Run Playwright tests (PostgreSQL, Task app only)
+      if: matrix.db == 'postgres'
+      run: npx playwright test --project=app --project=perf
+      env:
+        DB_CLIENT: pg
+        DATABASE_URL: postgres://postgres:postgres@localhost:5432/postgres
     - uses: actions/upload-artifact@v4
       if: ${{ !cancelled() }}
       with:
-        name: playwright-report
+        name: playwright-report-${{ matrix.db }}
         path: playwright-report/
         retention-days: 30

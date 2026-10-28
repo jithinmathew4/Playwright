@@ -1,12 +1,14 @@
 import { defineConfig, devices } from '@playwright/test';
 
 /**
- * Read environment variables from file.
- * https://github.com/motdotla/dotenv
+ * Load optional local settings (DB_CLIENT, DATABASE_URL) from .env – see .env.example.
+ * The tests and the webServer both inherit these variables.
  */
-// import dotenv from 'dotenv';
-// import path from 'path';
-// dotenv.config({ path: path.resolve(__dirname, '.env') });
+try {
+  process.loadEnvFile();
+} catch {
+  // No .env file: use the defaults (SQLite).
+}
 
 /**
  * See https://playwright.dev/docs/test-configuration.
@@ -25,8 +27,8 @@ export default defineConfig({
   reporter: 'html',
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
-    /* Base URL to use in actions like `await page.goto('/')`. */
-    // baseURL: 'http://127.0.0.1:3000',
+    /* Base URL for the self-hosted Task app. External-site tests use absolute URLs. */
+    baseURL: 'http://127.0.0.1:3000',
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
@@ -34,8 +36,24 @@ export default defineConfig({
 
   /* Configure projects for major browsers */
   projects: [
+    /* Tests against public demo sites (JSONPlaceholder, The Internet, SauceDemo). */
     {
-      name: 'chromium',
+      name: 'external',
+      testIgnore: '**/TaskApp/**',
+      use: { ...devices['Desktop Chrome'] },
+    },
+    /* API, DB and UI tests against the self-hosted Task app in app/. */
+    {
+      name: 'app',
+      testDir: './tests/TaskApp',
+      testIgnore: '**/perf/**',
+      use: { ...devices['Desktop Chrome'] },
+    },
+    /* Performance budgets for the Task app. Retries would hide slow runs, so they are off. */
+    {
+      name: 'perf',
+      testDir: './tests/TaskApp/perf',
+      retries: 0,
       use: { ...devices['Desktop Chrome'] },
     },
 
@@ -70,10 +88,11 @@ export default defineConfig({
     // },
   ],
 
-  /* Run your local dev server before starting the tests */
-  // webServer: {
-  //   command: 'npm run start',
-  //   url: 'http://127.0.0.1:3000',
-  //   reuseExistingServer: !process.env.CI,
-  // },
+  /* Start the Task app (and reset its database) before the tests run. */
+  webServer: {
+    command: 'npm run app:start',
+    url: 'http://127.0.0.1:3000/api/health',
+    reuseExistingServer: !process.env.CI,
+    stdout: 'pipe',
+  },
 });
