@@ -1,11 +1,17 @@
 {
-  "name": "Playwrite",
+  "name": "playwright-tests",
   "version": "1.0.0",
-  "main": "index.js",
+  "description": "End-to-end UI and API test automation with Playwright and TypeScript",
   "license": "MIT",
+  "scripts": {
+    "test": "playwright test",
+    "test:ui": "playwright test tests/UI",
+    "test:api": "playwright test tests/API",
+    "test:headed": "playwright test --headed",
+    "report": "playwright show-report"
+  },
   "devDependencies": {
     "@playwright/test": "^1.49.1",
     "@types/node": "^22.10.5"
-  },
-  "scripts": {}
+  }
 }
